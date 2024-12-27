@@ -1,0 +1,16 @@
+all:
+  hosts:
+    CHR1:
+      ansible_host: 10.66.66.2
+      ansible_user: admin
+      ansible_password: admin
+      ansible_connection: ansible.netcommon.network_cli
+      ansible_network_os: community.routeros.routeros
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa
+    CHR2:
+      ansible_host: 10.66.66.3
+      ansible_user: admin
+      ansible_password: admin
+      ansible_connection: ansible.netcommon.network_cli
+      ansible_network_os: community.routeros.routeros
+      ansible_ssh_private_key_file: ~/.ssh/id_rsa

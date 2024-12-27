@@ -1,0 +1,47 @@
+---
+    - name: CHR configuration
+      hosts: all
+      become: yes
+      tasks:
+        - name: Change user password
+          community.routeros.command:
+            commands:
+              - /user set admin password={{ansible_password}}
+    
+        - name: Configure NTP
+          community.routeros.command:
+            commands:
+              - /system ntp client set enabled=yes mode=unicast
+              - /system ntp client servers add address=194.190.168.1
+    
+        - name: Configure OSPF
+          community.routeros.command:
+            commands:
+              - /interface bridge add name=loopback
+              - /ip address add address={{ router_id }} interface=loopback
+              - /routing ospf area add instance=default name=backbone
+              - /routing ospf instance add disabled=no name=default
+              - /routing ospf instance set default router-id={{ router_id }}
+              - /routing ospf interface-template add area=backbone interfaces=ether1 type=ptp
+          vars:
+            router_id: "{% if ansible_host == '10.66.66.2' %}1.1.1.1{% elif ansible_host == '10.66.66.3' %}2.2.2.2{% else %}3.3.3.3{% endif %}"
+    
+        - name: Get OSPF topology details
+          community.routeros.command:
+            commands:
+              - /routing ospf neighbor print detail
+          register: ospf_topology
+    
+        - name: Print OSPF topology
+          debug:
+            var: ospf_topology.stdout_lines
+    
+        - name: Get full config
+          community.routeros.command:
+            commands:
+              - /export
+          register: full_config
+    
+        - name: Print full config
+          debug:
+            var: full_config.stdout_lines
